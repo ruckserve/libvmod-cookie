@@ -80,6 +80,7 @@ vmod_parse(struct sess *sp, const char *cookieheader) {
 	char tokendata[MAX_COOKIESTRING];
 	char *token, *tokstate, *key, *value, *sepindex;
 	char *dataptr = tokendata;
+	char header_name[MAX_COOKIESTRING];
 	struct vmod_cookie *vcp = cobj_get(sp);
 	CHECK_OBJ_NOTNULL(vcp, VMOD_COOKIE_MAGIC);
 
@@ -123,6 +124,10 @@ vmod_parse(struct sess *sp, const char *cookieheader) {
 		}
 		value = sepindex + 1;
 		*sepindex = '\0';
+		int tokenlen = strlen(token);
+		sprintf(header_name, " X-Cookie-%s:", token);
+		*header_name = (char) tokenlen + 10;
+		VRT_SetHdr(sp, HDR_REQ, header_name, value, vrt_magic_string_end);
 
 		vmod_set(sp, token, value);
 		i++;
